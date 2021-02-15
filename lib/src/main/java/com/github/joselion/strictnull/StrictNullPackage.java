@@ -9,6 +9,15 @@ import java.lang.annotation.Target;
 import javax.annotation.Nonnull;
 import javax.annotation.meta.TypeQualifierDefault;
 
+/**
+ * A package-level annotation the adds a qualifier behavior to all fields,
+ * methods, and parameters in the annotated package. The default behavior is
+ * given by the {@link Nonnull} annotation. To remove this behavior on any
+ * field, method, or parameter, use the {@link Nullable} annotation.
+ * 
+ * @since v0.0.1
+ * @see Nullable
+ */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
