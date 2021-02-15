@@ -3,11 +3,96 @@ version: 2.1
 orbs:
   gradle: circleci/gradle@2.2.0
 
+commands:
+  gradle-properties:
+    description: Provisions the build with the required gradle.properties
+    steps:
+      - run:
+          name: Provide Credentials
+          command: |
+            cp gradle.properties.sample gradle.properties
+            sed -i "s/<SIGNING_PASSWORD>/$SIGNING_PASSWORD/g" gradle.properties
+            sed -i "s/<OSSRH_PASSWORD>/$OSSRH_PASSWORD/g" gradle.properties
+            echo "All credentials were provisioned to gradle.properties file"
+
+jobs:
+  build:
+    executor:
+      name: gradle/default
+      tag: '15.0.1'
+
+    steps:
+      - checkout
+
+      - gradle-properties
+      
+      - gradle/with_cache:
+          steps:
+            - run:
+                name: Build
+                command: ./gradlew build
+
+      - gradle/collect_test_results
+
+  publish-snapshot:
+    executor:
+      name: gradle/default
+      tag: '15.0.1'
+
+    steps:
+      - checkout
+
+      - gradle-properties
+      
+      - gradle/with_cache:
+          steps:
+            - run:
+                name: Build Jar
+                command: ./gradlew jar
+
+            - deploy:
+                name: Publish to Sonatype OSSRH (Snapshot)
+                command: ./gradlew publish
+
+  publish-release:
+    executor:
+      name: gradle/default
+      tag: '15.0.1'
+
+    steps:
+      - checkout
+
+      - gradle-properties
+      
+      - gradle/with_cache:
+          steps:
+            - run:
+                name: Build Jar
+                command: ./gradlew jar
+
+            - deploy:
+                name: Publish to Sonatype OSSRH (Release)
+                command: ./gradlew -PreleaseVersion publish
+
+            - deploy:
+                name: Close and Release to Maven Central
+                command: ./gradlew -PreleaseVersion closeAndReleaseRepository
+
 workflows:
   main:
     jobs:
-      - gradle/test:
-          executor:
-            name: gradle/default
-            tag: '15.0.1'
-          test_command: build
+      - build
+
+      - publish-snapshot:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+
+      - publish-release:
+          requires:
+            - build
+          filters:
+            branches:
+              only: release
