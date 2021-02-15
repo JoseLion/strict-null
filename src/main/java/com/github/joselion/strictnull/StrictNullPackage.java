@@ -17,6 +17,7 @@ import javax.annotation.meta.TypeQualifierDefault;
  * 
  * @since v0.0.1
  * @see Nullable
+ * @see NonNull
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.RUNTIME)
