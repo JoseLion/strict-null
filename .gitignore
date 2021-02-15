@@ -22,3 +22,6 @@ bin/
 .project
 .settings/
 .vscode/
+
+# Local gradle.properties
+gradle.properties
