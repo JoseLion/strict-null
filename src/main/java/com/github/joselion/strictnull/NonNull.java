@@ -21,8 +21,19 @@ import javax.annotation.meta.When;
 @Documented
 @TypeQualifier
 public @interface NonNull {
+
+  /**
+   * Annotatation parameter to define when the annotated element cannot
+   * be assigned to {@code null}.
+   * 
+   * @return when the annotate element can be null
+   */
   When when() default When.ALWAYS;
 
+  /**
+   * Implemetation of {@link TypeQualifierValidator} for the NonNull
+   * annotation
+   */
   class Checker implements TypeQualifierValidator<NonNull> {
 
     @Override
